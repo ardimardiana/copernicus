@@ -90,7 +90,7 @@ class CopernicusExportPlugin extends ImportExportPlugin
         return $xmlDocument->saveXML();
     }
 
-    function &generateIssueDom(&$doc, &$journal, &$issue)
+    function generateIssueDom($doc, $journal, $issue)
     {
         $issn = $journal->getSetting('printIssn');
         $issn = $issn ? $issn : $journal->getSetting('onlineIssn');
@@ -112,8 +112,8 @@ class CopernicusExportPlugin extends ImportExportPlugin
         $issue_elem->setAttribute('volume', $issue->getVolume());
         $issue_elem->setAttribute('year', $issue->getYear());
         $issue_elem->setAttribute('publicationDate', $pub_issue_date);
-        $sectionDao =& DAORegistry::getDAO('SectionDAO');
-        $articleFileDao =& DAORegistry::getDAO('ArticleGalleyDAO');
+        $sectionDao = DAORegistry::getDAO('SectionDAO');
+        $articleFileDao = DAORegistry::getDAO('ArticleGalleyDAO');
         $submissionKeywordDao = DAORegistry::getDAO('SubmissionKeywordDAO');
         $num_articles = 0;
 
@@ -254,7 +254,7 @@ class CopernicusExportPlugin extends ImportExportPlugin
         }
     }
 
-    function exportIssue(&$journal, &$issue, $outputFile = null)
+    function exportIssue($journal, $issue, $outputFile = null)
     {
         $impl = new DOMImplementation();
         $doc = $impl->createDocument('1.0', '');
@@ -281,8 +281,8 @@ class CopernicusExportPlugin extends ImportExportPlugin
     function display($args, $request)
     {
         parent::display($args, $request);
-        $issueDao =& DAORegistry::getDAO('IssueDAO');
-        $journal =& $request->getJournal();
+        $issueDao = DAORegistry::getDAO('IssueDAO');
+        $journal = $request->getJournal();
         switch (array_shift($args)) {
             case 'exportIssue':
                 $issueId = array_shift($args);
@@ -310,7 +310,7 @@ class CopernicusExportPlugin extends ImportExportPlugin
                 $xmlDocument->preserveWhiteSpace = false;
                 $xmlDocument->formatOutput = true;
 
-                $xml = utf8_encode($doc->saveXML());
+                $xml = mb_convert_encoding($doc->saveXML(), 'UTF-8', 'ISO-8859-1');
                 $xmlDocument->loadXML($xml);
                 $xmlDocument->loadXML($xmlDocument->saveXML());
 
@@ -342,7 +342,7 @@ class CopernicusExportPlugin extends ImportExportPlugin
                 // Display a list of issues for export
 
                 $journal = $request->getJournal();
-                $issueDao =& DAORegistry::getDAO('IssueDAO');
+                $issueDao = DAORegistry::getDAO('IssueDAO');
                 $issues = $issueDao->getIssues($journal->getId(), Handler::getRangeInfo($request, 'issues'));
                 $templateMgr = TemplateManager::getManager($request);
 
